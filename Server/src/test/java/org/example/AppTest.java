@@ -2,10 +2,12 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.example.config.ServerApplicationConfig;
 import org.example.server.Server;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,12 +16,16 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class AppTest {
-    private static Server server;
     private static Thread serverThread;
+
+    private static int port;
 
     @BeforeAll
     static void serverStart() {
-        server = new Server(34522, new File("db.json"));
+        AnnotationConfigApplicationContext contex;
+        contex = new AnnotationConfigApplicationContext(ServerApplicationConfig.class);
+        Server server = contex.getBean(Server.class);
+        port = server.getPort();
         serverThread = new Thread(server::start);
         serverThread.start();
     }
@@ -27,7 +33,7 @@ public class AppTest {
     @Test
     public void test1() {
         String received = null;
-        try (Socket socket = new Socket("127.0.0.1", 34522);
+        try (Socket socket = new Socket("127.0.0.1", port);
              DataOutputStream output = new DataOutputStream(socket.getOutputStream());
              DataInputStream input = new DataInputStream(socket.getInputStream())) {
             output.writeUTF("{\"type\":\"set\",\"key\":\"person\",\"value\":{\"name\":\"Elon Musk\",\"car\":{\"model\":\"Tesla Roadster\",\"year\":\"2018\"},\"rocket\":{\"name\":\"Falcon 9\", \"launches\":\"87\"}}}");
@@ -43,7 +49,7 @@ public class AppTest {
     @Test
     public void test2() {
         String received = null;
-        try (Socket socket = new Socket("127.0.0.1", 34522);
+        try (Socket socket = new Socket("127.0.0.1", port);
              DataOutputStream output = new DataOutputStream(socket.getOutputStream());
              DataInputStream input = new DataInputStream(socket.getInputStream())) {
             output.writeUTF("{\"type\":\"get\",\"key\":[\"person\",\"name\"]}");
@@ -60,7 +66,7 @@ public class AppTest {
     @Test
     public void test3() {
         String received = null;
-        try (Socket socket = new Socket("127.0.0.1", 34522);
+        try (Socket socket = new Socket("127.0.0.1", port);
              DataOutputStream output = new DataOutputStream(socket.getOutputStream());
              DataInputStream input = new DataInputStream(socket.getInputStream())) {
             output.writeUTF("{\"type\":\"get\",\"key\":[\"person\",\"nameTEST\"]}");
@@ -76,7 +82,7 @@ public class AppTest {
 
     @AfterAll
     static void serverStop() throws InterruptedException {
-        try (Socket socket = new Socket("127.0.0.1", 34522);
+        try (Socket socket = new Socket("127.0.0.1", port);
              DataOutputStream output = new DataOutputStream(socket.getOutputStream());
              DataInputStream input = new DataInputStream(socket.getInputStream())) {
             output.writeUTF("{\"type\":\"exit\"}");

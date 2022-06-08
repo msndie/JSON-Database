@@ -3,19 +3,33 @@ package org.example.repositories;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import org.example.models.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+@Repository
 public class JsonRepository {
     private final ReentrantReadWriteLock lock;
-    private final Gson gson;
-    private final File file;
+    private Gson gson;
+    private File file;
 
-    public JsonRepository(File file) {
+    @Autowired
+    @Qualifier("gson")
+    private void setGson(Gson gson) {
+        this.gson = gson;
+    }
+
+    @Autowired
+    @Qualifier("getFile")
+    private void setFile(File file) {
         this.file = file;
+    }
+
+    public JsonRepository() {
         lock = new ReentrantReadWriteLock();
-        gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     private String writeToFile(JsonElement obj) {

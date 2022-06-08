@@ -1,13 +1,13 @@
 package org.example.app;
 
+import org.example.config.ServerApplicationConfig;
 import org.example.server.Server;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
 
 public class Main {
-    private static final int port = 34522;
-
     public static void main( String[] args ) {
         File file = new File("db.json");
         try {
@@ -18,7 +18,9 @@ public class Main {
             e.printStackTrace();
             return;
         }
-        Server server = new Server(port, file);
+        AnnotationConfigApplicationContext contex;
+        contex = new AnnotationConfigApplicationContext(ServerApplicationConfig.class);
+        Server server = contex.getBean(Server.class);
         server.start();
     }
 }

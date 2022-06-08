@@ -3,6 +3,9 @@ package org.example.server;
 import com.google.gson.*;
 import org.example.models.Response;
 import org.example.repositories.JsonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,14 +18,33 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private final int port;
-    private final Gson gson;
-    private final JsonRepository repository;
+    private int port;
+    private Gson gson;
+    private JsonRepository repository;
 
-    public Server(int port, File file) {
+    @Autowired
+    @Qualifier("gson")
+    private void setGson(Gson gson) {
+        this.gson = gson;
+    }
+
+    @Autowired
+    @Qualifier("getRep")
+    private void setRepository(JsonRepository repository) {
+        this.repository = repository;
+    }
+
+    @Autowired
+    @Qualifier("getPort")
+    private void setPort(int port) {
         this.port = port;
-        gson = new GsonBuilder().setPrettyPrinting().create();
-        repository = new JsonRepository(file);
+    }
+
+    public Server() {
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public void start() {
