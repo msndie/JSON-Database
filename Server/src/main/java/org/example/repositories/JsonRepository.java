@@ -1,9 +1,6 @@
 package org.example.repositories;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import org.example.models.Response;
 
@@ -18,7 +15,7 @@ public class JsonRepository {
     public JsonRepository(File file) {
         this.file = file;
         lock = new ReentrantReadWriteLock();
-        gson = new Gson();
+        gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     private String writeToFile(JsonElement obj) {

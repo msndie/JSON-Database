@@ -33,21 +33,26 @@ public class App {
     }
 
     public static void main(String[] args) {
+        Args args1 = new Args();
+        JCommander.newBuilder()
+                .addObject(args1)
+                .build()
+                .parse(args);
+        if (args1.file == null && args1.key == null
+                && args1.type == null && args1.value == null) {
+            System.err.println("Wrong arguments");
+            return;
+        }
         System.out.println("Client started!");
         try (Socket socket = new Socket(ADDRESS, PORT);
              DataOutputStream output = new DataOutputStream(socket.getOutputStream());
              DataInputStream input = new DataInputStream(socket.getInputStream())) {
-            Args args1 = new Args();
-            JCommander.newBuilder()
-                    .addObject(args1)
-                    .build()
-                    .parse(args);
             String json;
             if (args1.file == null) {
                 Gson gson = new Gson();
                 json = gson.toJson(new Request(args1.key, args1.value, args1.type));
             } else {
-                json = new String(Files.readAllBytes(Paths.get("data/" + args1.file)));
+                json = new String(Files.readAllBytes(Paths.get(args1.file)));
             }
             System.out.println("Sent: " + json);
             output.writeUTF(json);

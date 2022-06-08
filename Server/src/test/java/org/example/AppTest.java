@@ -35,7 +35,9 @@ public class AppTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals(received, "{\"response\":\"OK\"}");
+        assertEquals("{\n" +
+                "  \"response\": \"OK\"\n" +
+                "}", received);
     }
 
     @Test
@@ -49,7 +51,10 @@ public class AppTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals(received, "{\"response\":\"OK\",\"value\":\"Elon Musk\"}");
+        assertEquals("{\n" +
+                "  \"response\": \"OK\",\n" +
+                "  \"value\": \"Elon Musk\"\n" +
+                "}", received);
     }
 
     @Test
@@ -63,7 +68,10 @@ public class AppTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals(received, "{\"response\":\"ERROR\",\"reason\":\"No such key\"}");
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\",\n" +
+                "  \"reason\": \"No such key\"\n" +
+                "}", received);
     }
 
     @AfterAll

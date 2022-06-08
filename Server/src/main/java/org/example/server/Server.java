@@ -1,8 +1,7 @@
 package org.example.server;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.example.models.Request;
+import com.google.gson.*;
+import org.example.models.Response;
 import org.example.repositories.JsonRepository;
 
 import java.io.DataInputStream;
@@ -22,7 +21,7 @@ public class Server {
 
     public Server(int port, File file) {
         this.port = port;
-        gson = new Gson();
+        gson = new GsonBuilder().setPrettyPrinting().create();
         repository = new JsonRepository(file);
     }
 
@@ -34,14 +33,14 @@ public class Server {
             while (true) {
                 Socket socket = server.accept();
                 sockets.add(socket);
-                JsonObject request = checkExit(socket);
+                JsonElement request = checkExit(socket);
                 executor.submit(() -> {
                     Socket tmp = sockets.getLast();
                     try {
                         DataOutputStream output = new DataOutputStream(tmp.getOutputStream());
                         String sent;
                         if (request == null) {
-                            sent = gson.toJson(new Request("OK", null, null));
+                            sent = gson.toJson(new Response("OK", null, null));
                         } else {
                             sent = execCmd(request);
                         }
@@ -74,7 +73,7 @@ public class Server {
         }
     }
 
-    private JsonObject checkExit(Socket socket) {
+    private JsonElement checkExit(Socket socket) {
         JsonObject request;
         try {
             DataInputStream input = new DataInputStream(socket.getInputStream());
@@ -85,22 +84,25 @@ public class Server {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return JsonNull.INSTANCE;
         }
         return request;
     }
 
-    private String execCmd(JsonObject request) {
+    private String execCmd(JsonElement request) {
         String ret;
 
-        if ("get".equals(request.get("type").getAsString())) {
-            ret = repository.get(request);
-        } else if ("set".equals(request.get("type").getAsString())) {
-            ret = repository.set(request);
-        } else if ("delete".equals(request.get("type").getAsString())) {
-            ret = repository.delete(request);
+        if (request.isJsonNull()) {
+            return gson.toJson(new Response("ERROR", null, null));
+        }
+        if ("get".equals(request.getAsJsonObject().get("type").getAsString())) {
+            ret = repository.get(request.getAsJsonObject());
+        } else if ("set".equals(request.getAsJsonObject().get("type").getAsString())) {
+            ret = repository.set(request.getAsJsonObject());
+        } else if ("delete".equals(request.getAsJsonObject().get("type").getAsString())) {
+            ret = repository.delete(request.getAsJsonObject());
         } else {
-            ret = gson.toJson(new Request("ERROR", null, null));
+            ret = gson.toJson(new Response("ERROR", "UNKNOWN TYPE", null));
         }
         return ret;
     }
