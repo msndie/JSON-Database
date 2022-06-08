@@ -23,6 +23,8 @@ java -jar target/JSON-server.jar
 
 # Пример использования
 ```
+> java -jar target/JSON-server.jar
+Server started!
 > java -jar target/JSON-client.jar -in data/get.json 
 Client started!
 Sent: {"type":"get","key":"person"}
