@@ -23,24 +23,12 @@ java -jar target/JSON-server.jar
 
 # Пример использования
 ```
-> java -jar target/JSON-server.jar
+> java -jar Server/target/JSON-server.jar
 Server started!
-> java -jar target/JSON-client.jar -in data/get.json 
+> java -jar Client/target/JSON-client.jar -in Client/data/setAdvanced.json 
 Client started!
-Sent: {"type":"get","key":"person"}
-Received:
-{
-   "response":"OK",
-   "value":{
-      "name":"Elon Musk",
-      "car":{
-         "model":"Tesla Roadster",
-         "year":"2018"
-      },
-      "rocket":{
-         "name":"Falcon 9",
-         "launches":"87"
-      }
-   }
+Sent: {"type":"set","key":"person","value":{"name":"Elon Musk","car":{"model":"Tesla Roadster","year":"2018"},"rocket":{"name":"Falcon 9","launches":"87"}}}
+Received: {
+  "response": "OK"
 }
 ```
