@@ -68,6 +68,9 @@ public class JsonRepository {
         JsonElement obj;
         JsonElement element = null;
         JsonElement key = request.get("key");
+        if (key == null) {
+            return gson.toJson(new Response("ERROR", null, null));
+        }
 
         obj = readFromFile();
         if (obj == null) {
@@ -76,8 +79,12 @@ public class JsonRepository {
             if (key.isJsonArray()) {
                 JsonArray keys = key.getAsJsonArray();
                 for (JsonElement k : keys) {
-                    element = obj.getAsJsonObject().get(k.getAsString());
-                    obj = element;
+                    if (obj.getAsJsonObject().has(k.getAsString())) {
+                        element = obj.getAsJsonObject().get(k.getAsString());
+                        obj = element;
+                    } else {
+                        return gson.toJson(new Response("ERROR", "No such key", null));
+                    }
                 }
             } else {
                 element = obj.getAsJsonObject().get(key.getAsString());
@@ -95,6 +102,9 @@ public class JsonRepository {
         JsonElement obj;
         JsonElement val = request.get("value");
         JsonElement key = request.get("key");
+        if (val == null || key == null) {
+            return gson.toJson(new Response("ERROR", null, null));
+        }
         obj = readFromFile();
 
         if (obj == null) {
@@ -103,19 +113,35 @@ public class JsonRepository {
         if (key.isJsonArray()) {
             JsonElement tmp = obj;
             JsonArray keys = key.getAsJsonArray();
-            for (JsonElement k : keys) {
-                if (tmp.getAsJsonObject().has(k.getAsString())) {
-                    if (tmp.getAsJsonObject().get(k.getAsString()).isJsonPrimitive()) {
-                        tmp.getAsJsonObject().remove(k.getAsString());
-                        tmp.getAsJsonObject().add(k.getAsString(), val);
-                        break;
-                    }
+            JsonElement k = null;
+            for (int i = 0; i < keys.size(); i++) {
+                k = keys.get(i);
+                if (i + 1 != keys.size()) {
                     tmp = tmp.getAsJsonObject().get(k.getAsString());
-                } else {
-                    tmp.getAsJsonObject().add(k.getAsString(), val);
-                    break;
                 }
             }
+            if (k != null && tmp.isJsonObject()
+                    && tmp.getAsJsonObject().has(k.getAsString())) {
+                tmp.getAsJsonObject().remove(k.getAsString());
+                tmp.getAsJsonObject().add(k.getAsString(), val);
+            } else if (k != null) {
+                tmp.getAsJsonObject().add(k.getAsString(), val);
+            } else {
+                return gson.toJson(new Response("ERROR", null, null));
+            }
+//            for (JsonElement k : keys) {
+//                if (tmp.getAsJsonObject().has(k.getAsString())) {
+//                    if (tmp.getAsJsonObject().get(k.getAsString()).isJsonPrimitive()) {
+//                        tmp.getAsJsonObject().remove(k.getAsString());
+//                        tmp.getAsJsonObject().add(k.getAsString(), val);
+//                        break;
+//                    }
+//                    tmp = tmp.getAsJsonObject().get(k.getAsString());
+//                } else {
+//                    tmp.getAsJsonObject().add(k.getAsString(), val);
+//                    break;
+//                }
+//            }
         } else {
             obj.getAsJsonObject().add(key.getAsString(), val);
         }
@@ -125,6 +151,9 @@ public class JsonRepository {
     public String delete(JsonObject request) {
         JsonElement obj;
         JsonElement key = request.get("key");
+        if (key == null) {
+            return gson.toJson(new Response("ERROR", null, null));
+        }
         obj = readFromFile();
 
         if (obj == null) {
