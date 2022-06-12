@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
     private int port;
@@ -59,13 +60,13 @@ public class Server {
                 executor.submit(() -> {
                     Socket tmp = sockets.getLast();
                     try {
-                        DataOutputStream output = new DataOutputStream(tmp.getOutputStream());
                         String sent;
                         if (request == null) {
                             sent = gson.toJson(new Response("OK", null, null));
                         } else {
                             sent = execCmd(request);
                         }
+                        DataOutputStream output = new DataOutputStream(tmp.getOutputStream());
                         output.writeUTF(sent);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -83,6 +84,9 @@ public class Server {
                 }
             }
             executor.shutdown();
+            while (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                System.out.println("Still waiting for all tasks to shut down");
+            }
             sockets.forEach(s -> {
                 try {
                     s.close();
@@ -92,7 +96,10 @@ public class Server {
             });
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+        System.out.println("Server is down");
     }
 
     private JsonElement checkExit(Socket socket) {

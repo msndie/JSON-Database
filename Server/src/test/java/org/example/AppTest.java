@@ -80,6 +80,122 @@ public class AppTest {
                 "}", received);
     }
 
+    @Test
+    public void test4() {
+        String received = null;
+        try (Socket socket = new Socket("127.0.0.1", port);
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            output.writeUTF("{\"type\":\"get\",\"key\":[\"nameTEST\"]}");
+            received = input.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\",\n" +
+                "  \"reason\": \"No such key\"\n" +
+                "}", received);
+    }
+
+    @Test
+    public void test5() {
+        String received = null;
+        try (Socket socket = new Socket("127.0.0.1", port);
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            output.writeUTF("{\"type\":\"pull\",\"key\":[\"nameTEST\"]}");
+            received = input.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\",\n" +
+                "  \"reason\": \"UNKNOWN TYPE\"\n" +
+                "}", received);
+    }
+
+    @Test
+    public void test6() {
+        String received = null;
+        try (Socket socket = new Socket("127.0.0.1", port);
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            output.writeUTF("{\"type\":\"get\"}");
+            received = input.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\"\n" +
+                "}", received);
+    }
+
+    @Test
+    public void test7() {
+        String received = null;
+        try (Socket socket = new Socket("127.0.0.1", port);
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            output.writeUTF("{\"type\":\"set\"}");
+            received = input.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\"\n" +
+                "}", received);
+    }
+
+    @Test
+    public void test8() {
+        String received = null;
+        try (Socket socket = new Socket("127.0.0.1", port);
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            output.writeUTF("{\"type\":\"delete\"}");
+            received = input.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\"\n" +
+                "}", received);
+    }
+
+    @Test
+    public void test9() {
+        String received = null;
+        try (Socket socket = new Socket("127.0.0.1", port);
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            output.writeUTF("{\"type\":\"delete\",\"key\":[\"person\",\"nameTEST\"]}");
+            received = input.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\",\n" +
+                "  \"reason\": \"No such key\"\n" +
+                "}", received);
+    }
+
+    @Test
+    public void test10() {
+        String received = null;
+        try (Socket socket = new Socket("127.0.0.1", port);
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+             DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            output.writeUTF("{\"type\":\"get\", \"key\":[\"person\", \"cat\", \"model\"]}");
+            received = input.readUTF();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assertEquals("{\n" +
+                "  \"response\": \"ERROR\",\n" +
+                "  \"reason\": \"No such key\"\n" +
+                "}", received);
+    }
+
     @AfterAll
     static void serverStop() throws InterruptedException {
         try (Socket socket = new Socket("127.0.0.1", port);
