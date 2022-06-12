@@ -129,19 +129,6 @@ public class JsonRepository {
             } else {
                 return gson.toJson(new Response("ERROR", null, null));
             }
-//            for (JsonElement k : keys) {
-//                if (tmp.getAsJsonObject().has(k.getAsString())) {
-//                    if (tmp.getAsJsonObject().get(k.getAsString()).isJsonPrimitive()) {
-//                        tmp.getAsJsonObject().remove(k.getAsString());
-//                        tmp.getAsJsonObject().add(k.getAsString(), val);
-//                        break;
-//                    }
-//                    tmp = tmp.getAsJsonObject().get(k.getAsString());
-//                } else {
-//                    tmp.getAsJsonObject().add(k.getAsString(), val);
-//                    break;
-//                }
-//            }
         } else {
             obj.getAsJsonObject().add(key.getAsString(), val);
         }
