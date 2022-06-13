@@ -3,7 +3,6 @@ package org.example.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.example.repositories.JsonRepository;
-import org.example.server.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,11 +33,6 @@ public class ServerApplicationConfig {
 	@Bean
 	public JsonRepository getRep() {
 		return new JsonRepository();
-	}
-
-	@Bean
-	public Server getServ() {
-		return new Server();
 	}
 
 	@Bean

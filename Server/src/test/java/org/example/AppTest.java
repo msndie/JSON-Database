@@ -267,7 +267,7 @@ public class AppTest {
         });
         executor.shutdown();
         try {
-            while (!executor.awaitTermination(1000, TimeUnit.MILLISECONDS)) {
+            while (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                 System.out.println("Executor still running");
             }
         } catch (InterruptedException e) {

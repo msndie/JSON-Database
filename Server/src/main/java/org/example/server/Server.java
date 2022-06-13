@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Optional;
 import java.util.concurrent.*;
 
+@Component
 public class Server {
     private int port;
     private Gson gson;
@@ -74,9 +74,8 @@ public class Server {
                         e.printStackTrace();
                     }
                     try {
-                        Thread.sleep(200);
                         tmp.close();
-                    } catch (IOException | InterruptedException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 });

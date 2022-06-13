@@ -18,9 +18,9 @@ public class Main {
             e.printStackTrace();
             return;
         }
-        AnnotationConfigApplicationContext contex;
-        contex = new AnnotationConfigApplicationContext(ServerApplicationConfig.class);
-        Server server = contex.getBean(Server.class);
+        AnnotationConfigApplicationContext context;
+        context = new AnnotationConfigApplicationContext(ServerApplicationConfig.class);
+        Server server = context.getBean(Server.class);
         server.start();
     }
 }
