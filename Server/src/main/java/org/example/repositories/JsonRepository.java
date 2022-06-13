@@ -43,7 +43,7 @@ public class JsonRepository {
         } catch (IOException e) {
             e.printStackTrace();
             lock.writeLock().unlock();
-            System.exit(1);
+            return gson.toJson(new Response("ERROR", null, null));
         }
         lock.writeLock().unlock();
         return gson.toJson(new Response("OK", null, null));

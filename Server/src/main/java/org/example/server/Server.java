@@ -13,10 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
+import java.util.concurrent.*;
 
 public class Server {
     private int port;
@@ -50,28 +48,31 @@ public class Server {
 
     public void start() {
         ExecutorService executor = Executors.newFixedThreadPool(4);
-        ConcurrentLinkedDeque<Socket> sockets = new ConcurrentLinkedDeque<>();
+        ConcurrentLinkedQueue<Socket> sockets = new ConcurrentLinkedQueue<>();
+        ConcurrentLinkedQueue<Optional<JsonElement>> requests = new ConcurrentLinkedQueue<>();
         try (ServerSocket server = new ServerSocket(port)) {
             System.out.println("Server started!");
             while (true) {
                 Socket socket = server.accept();
                 sockets.add(socket);
                 JsonElement request = checkExit(socket);
+                requests.add(Optional.ofNullable(request));
                 executor.submit(() -> {
-                    Socket tmp = sockets.getLast();
+                    Socket tmp = sockets.poll();
+                    Optional<JsonElement> req = requests.poll();
                     try {
                         String sent;
-                        if (request == null) {
+                        if (!req.isPresent()) {
                             sent = gson.toJson(new Response("OK", null, null));
                         } else {
-                            sent = execCmd(request);
+                            sent = execCmd(req.get());
                         }
                         DataOutputStream output = new DataOutputStream(tmp.getOutputStream());
                         output.writeUTF(sent);
+                        output.flush();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    sockets.remove(tmp);
                     try {
                         Thread.sleep(200);
                         tmp.close();
@@ -89,7 +90,9 @@ public class Server {
             }
             sockets.forEach(s -> {
                 try {
-                    s.close();
+                    if (!s.isClosed()) {
+                        s.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
