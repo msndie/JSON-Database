@@ -31,11 +31,6 @@ public class ServerApplicationConfig {
 	}
 
 	@Bean
-	public JsonRepository getRep() {
-		return new JsonRepository();
-	}
-
-	@Bean
 	public Gson gson() {
 		return new GsonBuilder().setPrettyPrinting().create();
 	}

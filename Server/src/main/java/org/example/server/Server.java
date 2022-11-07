@@ -17,29 +17,15 @@ import java.util.concurrent.*;
 
 @Component
 public class Server {
-    private int port;
-    private Gson gson;
-    private JsonRepository repository;
+    private final int port;
+    private final Gson gson;
+    private final JsonRepository repository;
 
     @Autowired
-    @Qualifier("gson")
-    private void setGson(Gson gson) {
-        this.gson = gson;
-    }
-
-    @Autowired
-    @Qualifier("getRep")
-    private void setRepository(JsonRepository repository) {
-        this.repository = repository;
-    }
-
-    @Autowired
-    @Qualifier("getPort")
-    private void setPort(int port) {
+    public Server(int port, Gson gson, JsonRepository repository) {
         this.port = port;
-    }
-
-    public Server() {
+        this.gson = gson;
+        this.repository = repository;
     }
 
     public int getPort() {
@@ -50,6 +36,7 @@ public class Server {
         ExecutorService executor = Executors.newFixedThreadPool(4);
         ConcurrentLinkedQueue<Socket> sockets = new ConcurrentLinkedQueue<>();
         ConcurrentLinkedQueue<Optional<JsonElement>> requests = new ConcurrentLinkedQueue<>();
+
         try (ServerSocket server = new ServerSocket(port)) {
             System.out.println("Server started!");
             while (true) {
@@ -57,28 +44,7 @@ public class Server {
                 sockets.add(socket);
                 JsonElement request = checkExit(socket);
                 requests.add(Optional.ofNullable(request));
-                executor.submit(() -> {
-                    Socket tmp = sockets.poll();
-                    Optional<JsonElement> req = requests.poll();
-                    try {
-                        String sent;
-                        if (!req.isPresent()) {
-                            sent = gson.toJson(new Response("OK", null, null));
-                        } else {
-                            sent = execCmd(req.get());
-                        }
-                        DataOutputStream output = new DataOutputStream(tmp.getOutputStream());
-                        output.writeUTF(sent);
-                        output.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        tmp.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+                executor.submit(new Task(requests, sockets, repository, gson));
                 if (request == null) {
                     break;
                 }
@@ -118,23 +84,5 @@ public class Server {
             return JsonNull.INSTANCE;
         }
         return request;
-    }
-
-    private String execCmd(JsonElement request) {
-        String ret;
-
-        if (request.isJsonNull()) {
-            return gson.toJson(new Response("ERROR", null, null));
-        }
-        if ("get".equals(request.getAsJsonObject().get("type").getAsString())) {
-            ret = repository.get(request.getAsJsonObject());
-        } else if ("set".equals(request.getAsJsonObject().get("type").getAsString())) {
-            ret = repository.set(request.getAsJsonObject());
-        } else if ("delete".equals(request.getAsJsonObject().get("type").getAsString())) {
-            ret = repository.delete(request.getAsJsonObject());
-        } else {
-            ret = gson.toJson(new Response("ERROR", "UNKNOWN TYPE", null));
-        }
-        return ret;
     }
 }
